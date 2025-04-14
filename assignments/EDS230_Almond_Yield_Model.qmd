@@ -6,7 +6,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-First, we created a conceptual model that highlights the necessary inputs and parameters to determine our output. Our inputs were
+First, we created a conceptual model that highlights the necessary inputs and parameters to determine our output. Our inputs were the clim.txt file provided, and the parameters from a formula in Lobell et at. 2006 outlining almond yield in California.
 
 ![Conceptual model for almond yield](/almond_model.png){#id .class width="50%" height="50%"}
 
