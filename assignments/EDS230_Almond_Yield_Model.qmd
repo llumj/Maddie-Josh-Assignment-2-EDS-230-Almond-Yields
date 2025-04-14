@@ -6,8 +6,9 @@ editor_options:
   chunk_output_type: console
 ---
 
-First, we created a conceptual model that highlights the necessary inputs and parameters to determine our output. Our inputs were 
+First, we created a conceptual model that highlights the necessary inputs and parameters to determine our output. Our inputs were
 
+![Conceptual model for almond yield](/almond_model.png){#id .class width="50%" height="50%"}
 
 Next, we load in our packages
 
@@ -18,48 +19,51 @@ library(janitor)
 ```
 
 We also need to load in the climate data used in our almond yield prediction
+
 ```{r}
-daily_data <- read_table(here("data", "clim.txt")) %>% clean_names()
-
 climate_data <- read_table(here("data", "clim.txt")) %>% clean_names()
-
 ```
 
-```{r}
+Now we build our model...
 
-#
-daily_almond_yield <- function(climate_data, Tn1 = -0.015, Tn2 = -0.0046, P1 = -0.07, P2 = 0.0043, i = 0.28) {
+```{r}
+# Create our almond yield function
+almond_yield <- function(climate_data, Tn1 = -0.015, Tn2 = -0.0046, P1 = -0.07, P2 = 0.0043, i = 0.28) {
   
-  #
+  # Create a data frame with minimum February temperature for joining (We chose to use February temp because we assumed frost would have a negative effect on almond production)
   feb_temp <- climate_data %>%
     filter(month == 2) %>% 
     group_by(year) %>%
     summarize(min_feb_temp_c = min(tmin_c, na.rm = TRUE), .groups = "drop") 
   
+  # Create a data frame with total January precipitation for joining (We chose to use January precipitation because precipitation at time of harvest likely had less effect on production)
   jan_p <- climate_data %>%
     filter(month == 1) %>% 
     group_by(year) %>% 
     summarize(jan_precip = sum(precip, na.rm = TRUE), .groups = "drop") 
   
+  # Join the precip and temp data for our climate data
   climate_data_jan_feb <- left_join(feb_temp, jan_p, by = "year")
   
   # Compute yield for each year
   climate_data_jan_feb <- climate_data_jan_feb %>%
-    mutate(yield = Tn1 * min_feb_temp_c + Tn2 * min_feb_temp_c^2 + P1 * jan_precip + P2 * jan_precip^2 + i)
+    mutate(yield = Tn1 *    min_feb_temp_c + Tn2 * min_feb_temp_c^2 + P1 * jan_precip + P2 * jan_precip^2 + i)
   
   
   
-  # Return max, min, and mean yields
+  # Return max, min, and mean almond yields
   return(list(
-    maxyield = max(climate_data_jan_feb$yield, na.rm = TRUE),
-    minyield = min(climate_data_jan_feb$yield, na.rm = TRUE),
-    meanyield = mean(climate_data_jan_feb$yield, na.rm = TRUE)
+    max_yield = max(climate_data_jan_feb$yield, na.rm = TRUE),
+    min_yield = min(climate_data_jan_feb$yield, na.rm = TRUE),
+    mean_yield = mean(climate_data_jan_feb$yield, na.rm = TRUE)
   ))
 }
 ```
 
+Finally, we check our model with the original climate data!
 
 ```{r}
-daily_almond_yield(climate_data)
+almond_yield(climate_data)
 ```
 
+Our final values were max_yield = 1920.308, min_yield = -0.02682371, mean_yield = 181.759! :)
