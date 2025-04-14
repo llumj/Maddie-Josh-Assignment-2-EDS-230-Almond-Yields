@@ -1,0 +1,37 @@
+---
+title: "Assignment 2"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+## 
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+```{r}
+climate_data <- read_table(here("data", "clim.txt")) %>% clean_names()
+
+
+```
+
+```{r}
+daily_almond_yield(climate_data = climate_data, time_series = 1)
+```
+
+```{r}
+daily_data <- climate_data %>%
+    group_by(day) %>%
+    summarise()
+```
+
+
+```{r}
+variable_num <- 2
+(-5*(variable_num^2))
+```
+
