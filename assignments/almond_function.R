@@ -1,25 +1,31 @@
 
-daily_almond_yield <- function(climate_data, time_series) {
+daily_almond_yield <- function(climate_data, Tn1 = -0.015, Tn2 = -0.0046, P1 = -0.07, P2 = 0.0043, i = 0.28) {
   
-  daily_data <- climate_data %>%
-    group_by(day) %>% 
-    filter(day == time_series & month == 2) %>% 
+  min_feb_temp_c <- climate_data %>%
+    filter(month == 2) %>% 
+    group_by(year) %>%
+    summarize(min_feb_temp_c = min(tmin_c, na.rm = TRUE)) %>% 
     ungroup()
   
-  daily_summary <- daily_data %>%
-    summarize(
-      tmin_mean = mean(tmin_c, na.rm = TRUE),
-      tmin_min = min(tmin_c, na.rm = TRUE),
-      tmin_max = max(tmin_c, na.rm = TRUE),
-      precip_mean= mean(precip, na.rm = TRUE),
-      precip_min= min(precip, na.rm = TRUE),
-      precip_max= max(precip, na.rm = TRUE)
-    )
+  jan_precip <- climate_data %>%
+    filter(month == 1) %>% 
+    group_by(year) %>% 
+    summarize(jan_p = sum(precip, na.rm = TRUE)) %>% 
+    ungroup()
   
-  almond_yield_min <- (-0.015*daily_summary$tmin_min) - (0.0046*(daily_summary$tmin_min^2))- (0.07*daily_summary$precip_min)+(0.0043*(daily_summary$precip_min^2))+0.28
-  almond_yield_max <- (-0.015*daily_summary$tmin_max) - (0.0046*(daily_summary$tmin_max^2))- (0.07*daily_summary$precip_max)+(0.0043*(daily_summary$precip_max^2))+0.28
-  almond_yield_mean <- (-0.015*daily_summary$tmin_mean) - (0.0046*(daily_summary$tmin_mean^2))- (0.07*daily_summary$precip_mean)+(0.0043*(daily_summary$precip_mean^2))+0.28
+  climate_data_jan_feb <- left_join(feb_min_t, jan_precip, by = "year")
   
-  almond_yield_predictions <- c(almond_yield_max, almond_yield_min, almond_yield_mean)
-  return(almond_yield_predictions)
+  # Compute yield for each year
+  climate_data <- climate_data %>%
+    mutate(yield = Tn1 * min_feb_temp_c + Tn2 * min_feb_temp_c^2 + P1 * jan_precip + P2 * jan_precip^2 + i)
+  
+  
+  
+  # Return max, min, and mean yields
+  return(list(
+    maxyield = max(climate_data$yield, na.rm = TRUE),
+    minyield = min(climate_data$yield, na.rm = TRUE),
+    meanyield = mean(climate_data$yield, na.rm = TRUE)
+  ))
 }
+
