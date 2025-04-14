@@ -1,0 +1,65 @@
+---
+title: "EDS 230: Assignment 2 - Almond Yield Model"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+First, we created a conceptual model that highlights the necessary inputs and parameters to determine our output. Our inputs were 
+
+
+Next, we load in our packages
+
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+We also need to load in the climate data used in our almond yield prediction
+```{r}
+daily_data <- read_table(here("data", "clim.txt")) %>% clean_names()
+
+climate_data <- read_table(here("data", "clim.txt")) %>% clean_names()
+
+```
+
+```{r}
+
+#
+daily_almond_yield <- function(climate_data, Tn1 = -0.015, Tn2 = -0.0046, P1 = -0.07, P2 = 0.0043, i = 0.28) {
+  
+  #
+  feb_temp <- climate_data %>%
+    filter(month == 2) %>% 
+    group_by(year) %>%
+    summarize(min_feb_temp_c = min(tmin_c, na.rm = TRUE), .groups = "drop") 
+  
+  jan_p <- climate_data %>%
+    filter(month == 1) %>% 
+    group_by(year) %>% 
+    summarize(jan_precip = sum(precip, na.rm = TRUE), .groups = "drop") 
+  
+  climate_data_jan_feb <- left_join(feb_temp, jan_p, by = "year")
+  
+  # Compute yield for each year
+  climate_data_jan_feb <- climate_data_jan_feb %>%
+    mutate(yield = Tn1 * min_feb_temp_c + Tn2 * min_feb_temp_c^2 + P1 * jan_precip + P2 * jan_precip^2 + i)
+  
+  
+  
+  # Return max, min, and mean yields
+  return(list(
+    maxyield = max(climate_data_jan_feb$yield, na.rm = TRUE),
+    minyield = min(climate_data_jan_feb$yield, na.rm = TRUE),
+    meanyield = mean(climate_data_jan_feb$yield, na.rm = TRUE)
+  ))
+}
+```
+
+
+```{r}
+daily_almond_yield(climate_data)
+```
+
