@@ -84,12 +84,12 @@ https://www.merlofarminggroup.com/almonds/Independence
 
 ```{r}
 # Create vectors of year and price
-year <- c(1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025)
+date <- c(1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025)
 
 price <- c(2.48, 2.08, 1.56, 1.41, 0.86, 0.97, 0.91, 1.11, 1.57, 2.21, 2.81, 2.06, 1.75, 1.45, 1.65, 1.79, 1.99, 2.58, 3.21, 4.00, 3.13, 2.39, 2.53, 2.50, 2.45, 1.71, 1.86, 1.40, 1.64, 1.91, 2.60)
   
 # Join vectors in data frame
-almond_price <- data.frame(year, price)
+almond_price <- data.frame(date, price)
 
 # Create a column that is price per ton
 almond_price <- almond_price %>%
@@ -99,25 +99,30 @@ almond_price <- almond_price %>%
 Create an almond profit model that utilizes outputs from the almond yield model
 ```{r}
 #' computes profit from power generation
-#' @param  farm_size (acres)
-#' @param  year (when almonds were harvested)
+#' @param farm_size (acres of farm land)
+#' @param year (year when almonds were harvested)
+#' @param yields (results from almond_yield function)
 #' @return max, min, and mean profit 
 profit_from_almond_yield <- function(farm_size, year) {
 
+  # Create vectors of year and price
+  date <- c(1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025)
+  price <- c(2.48, 2.08, 1.56, 1.41, 0.86, 0.97, 0.91, 1.11, 1.57, 2.21, 2.81, 2.06, 1.75, 1.45, 1.65, 1.79, 1.99, 2.58, 3.21, 4.00, 3.13, 2.39, 2.53, 2.50, 2.45, 1.71, 1.86, 1.40, 1.64, 1.91, 2.60)
+  
   # Configure price from year and farm_size 
   # price ($/ton)
-  price_by_year <- 
+  price_by_year <- almond_price %>%
+    filter(date == year)
   
-  
-  # generate a unique identifier or scenario number
-  scen <- seq(from = 1, to = length(energy))
-  yearprofit <- data.frame(scen = scen, energy = energy, year = year)
-  yearprofit$net <- yearprofit$energy * price
+  # Join vectors in data frame
+  almond_price <- data.frame(date, price)
 
-  # note how discount is passed through to this function
-  # remember to normalize the year to start year e.g the first year
-  yearprofit <- yearprofit %>%
-    mutate(netpre = compute_NPV(value = net, time = year - year[1], discount = discount))
+  # Create a column that is price per ton
+  almond_price <- almond_price %>%
+  mutate(price_per_ton = price * 2000 )
+  
+  # Use the price per ton from subsequent year to find price by acres and 
+  yearprofit <- farmsize * 
 
   return(yearprofit)
 }
