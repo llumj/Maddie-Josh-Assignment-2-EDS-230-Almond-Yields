@@ -5,7 +5,7 @@ date: 04/20/2025
 format: html
 editor: visual
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 Load in the initial data and relevant packages
@@ -135,39 +135,56 @@ almond_price <- almond_price %>%
 mutate(price_per_ton = price * 2000)
 ```
 
+The mean value of price per ton was calculated to be 4036.77, this will be used as our mean for the sensitivity analysis of the year parameter, for which we will calculate z-scores. The farm size we are using is 383 acres, which was sited as the average farm size 
+
 ```{r}
+# Find meanprofit for each year
 year_variation_profit <- profit_from_almond_yield(farm_size = 383, year = date)
 
-year_variation_df <- data.frame(ave_acre_profit, date) %>%
-  mutate(z_score = scale(ave_ap_df$ave_acre_profit))
+# Use the year and meanprofit results to create a new dataframe
+year_variation_df <- data.frame(year_variation_profit, date) 
 
+# Create column of z-score values
+year_variation_df <- year_variation_df %>%
+  mutate(z_score = scale(year_variation_df$year_variation_profit)) 
 
+```
 
+The year that we are selecting is 2011, where the price_per_ton value was closest to the mean calculated value for all years. The will run through a list of farm sizes centered at 383, with 31 values (chosen merely to match length of yearly data). 
+
+```{r}
+# Create list of farm sizes (in acres) centered around mean 383
 numbers <- c(
   250, 350, 400, 500, 600, 300, 450, 390, 370, 410,
   420, 360, 430, 395, 380, 405, 470, 490, 375, 385,
   415, 440, 320, 340, 520, 310, 395, 450, 480, 370, 400
 )
 
+# Find meanprofit for each farm size
+acre_variation_profit <- profit_from_almond_yield(farm_size = numbers, year = 2011)
 
-ave_acre_profit <- profit_from_almond_yield(farm_size = numbers, year = 2011)
-print(ave_acre_profit)
+# Create df 
+acre_variation_profit_df <-  data.frame(acre_variation_profit, year = 2011) 
 
-ave_acre_profit_df <-  data.frame(ave_acre_profit, year = 2011) %>%
-  mutate(z_score = scale(ave_acre_profit_df$ave_acre_profit))
+# Create column of z-score values
+acre_variation_profit_df <- acre_variation_profit_df %>%
+  mutate(z_score = scale(acre_variation_profit_df$acre_variation_profit))
 ```
 
 
 4.) First graph of almond profit model that shows yield anomaly for each year, accounting for uncertainty in the parameters
 
 ```{r}
-
+ggplot(year_variation_df, aes(x = date, y = z_score[,1])) +
+  geom_line()
 ```
 
 Second graph of almond profit model that shows how yield anomaly in general varies with your parameters
 
 ```{r}
-
+ggplot(acre_variation_profit_df, aes(x = z_score[,1])) +
+  geom_histogram() +
+  geom_density()
 ```
 
 5.  Write a short paragraph (in a Quatro document) to summarize you interpretation of your model results (e.g what do 'take away' from your model and sensitivity analysis)
