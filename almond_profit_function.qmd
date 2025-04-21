@@ -4,6 +4,8 @@ author: "Madison Enda"
 date: 04/20/2025
 format: html
 editor: visual
+editor_options: 
+  chunk_output_type: console
 ---
 
 Load in the initial data and relevant packages
@@ -18,8 +20,8 @@ library(janitor)
 climate_data <- read_table(here("data", "clim.txt")) %>% clean_names()
 ```
 
-
 1.) Bring in the almond yield model
+
 ```{r}
 #' Calculate Almond Yield
 #'
@@ -71,13 +73,10 @@ almond_yield <- function(climate_data, Tn1 = -0.015, Tn2 = -0.0046, P1 = -0.07, 
 }
 ```
 
-
-Create data frame of average price per lbs of California almonds by year. Data sources from USDA and Merlo Farming Group:
-https://www.nass.usda.gov/Statistics_by_State/California/Publications/Specialty_and_Other_Releases/Almond/Forecast/202405almpd.pdf 
-https://www.merlofarminggroup.com/almonds/Independence
-
+Create data frame of average price per lbs of California almonds by year. Data sources from USDA and Merlo Farming Group: https://www.nass.usda.gov/Statistics_by_State/California/Publications/Specialty_and_Other_Releases/Almond/Forecast/202405almpd.pdf https://www.merlofarminggroup.com/almonds/Independence
 
 Create an almond profit model that utilizes outputs from the almond yield model
+
 ```{r}
 #' computes profit from power generation
 #' @param farm_size (acres of farm land)
@@ -111,18 +110,51 @@ profit_from_almond_yield <- function(farm_size, year) {
 }
 ```
 
-
-2.) Apply profit model to the almond model 
+2.) Apply profit model to the almond model
 
 ```{r}
 profit_from_almond_yield(farm_size= 50, year= 1999)
 ```
 
-
 3.) Sensitivity analysis of the almond profit model
 
-```{r}
+For this analysis we used 383 acres as the average farm size in California according to farmflavor.com found here 
 
+[Farm Flavor](https://farmflavor.com/california/top-california-agriculture-facts/)
+
+
+```{r}
+date <- c(1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025)
+price <- c(2.48, 2.08, 1.56, 1.41, 0.86, 0.97, 0.91, 1.11, 1.57, 2.21, 2.81, 2.06, 1.75, 1.45, 1.65, 1.79, 1.99, 2.58, 3.21, 4.00, 3.13, 2.39, 2.53, 2.50, 2.45, 1.71, 1.86, 1.40, 1.64, 1.91, 2.60)
+  
+# Join vectors in data frame
+almond_price <- data.frame(date, price)
+  
+# Create a column that is price per ton
+almond_price <- almond_price %>%
+mutate(price_per_ton = price * 2000)
+```
+
+```{r}
+year_variation_profit <- profit_from_almond_yield(farm_size = 383, year = date)
+
+year_variation_df <- data.frame(ave_acre_profit, date) %>%
+  mutate(z_score = scale(ave_ap_df$ave_acre_profit))
+
+
+
+numbers <- c(
+  250, 350, 400, 500, 600, 300, 450, 390, 370, 410,
+  420, 360, 430, 395, 380, 405, 470, 490, 375, 385,
+  415, 440, 320, 340, 520, 310, 395, 450, 480, 370, 400
+)
+
+
+ave_acre_profit <- profit_from_almond_yield(farm_size = numbers, year = 2011)
+print(ave_acre_profit)
+
+ave_acre_profit_df <-  data.frame(ave_acre_profit, year = 2011) %>%
+  mutate(z_score = scale(ave_acre_profit_df$ave_acre_profit))
 ```
 
 
@@ -138,4 +170,9 @@ Second graph of almond profit model that shows how yield anomaly in general vari
 
 ```
 
-5. Write a short paragraph (in a Quatro document) to summarize you interpretation of your model results (e.g what do 'take away' from your model and sensitivity analysis)
+5.  Write a short paragraph (in a Quatro document) to summarize you interpretation of your model results (e.g what do 'take away' from your model and sensitivity analysis)
+
+```{r}
+
+```
+
