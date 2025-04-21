@@ -1,0 +1,150 @@
+---
+title: "Almond_Profit_Function"
+author: "Madison Enda"
+date: 04/20/2025
+format: html
+editor: visual
+---
+
+Load in the initial data and relevant packages
+
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+```{r}
+climate_data <- read_table(here("data", "clim.txt")) %>% clean_names()
+```
+
+
+1.) Bring in the almond yield model
+```{r}
+#' Calculate Almond Yield
+#'
+#' @description Computes the maximum, minimum, and mean almond yield for each year 
+#' based on climate data inputs such as minimum February temperature and January precipitation.
+#'
+#' @author Madison Enda and Joshua Mull for EDS230 with Naomi Tague
+#' 
+#' @param climate_data A data frame containing climate data with columns for `month`, `year`, 
+#' `tmin_c` (minimum daily temperature in Celsius), and `precip` (daily precipitation in millimeters).
+#' @param Tn1 Coefficient for the minimum February temperature.
+#' Default is -0.015.
+#' @param Tn2 Quadratic term coefficient of the minimum February temperature.
+#' Default is -0.0046.
+#' @param P1 Coefficient for January precipitation. Default is -0.07.
+#' @param P2 Quadratic term coefficient of January precipitation. Default is 0.0043.
+#' @param i Intercept term 0.28.
+#'
+#' @return A list containing: min, max and mean almond yields across all years 
+
+almond_yield <- function(climate_data, Tn1 = -0.015, Tn2 = -0.0046, P1 = -0.07, P2 = 0.0043, i = 0.28) {
+  
+  # filter data for min temp in February 
+  feb_temp <- climate_data %>%
+    filter(month == 2) %>% 
+    group_by(year) %>%
+    summarize(min_feb_temp_c = min(tmin_c, na.rm = TRUE), .groups = "drop") 
+  
+  # filter data for total rain in January 
+  jan_p <- climate_data %>%
+    filter(month == 1) %>% 
+    group_by(year) %>% 
+    summarize(jan_precip = sum(precip, na.rm = TRUE), .groups = "drop") 
+  
+  # join data frames 
+  climate_data_jan_feb <- left_join(feb_temp, jan_p, by = "year")
+  
+  # Compute yield for each year
+  climate_data_jan_feb <- climate_data_jan_feb %>%
+    mutate(yield = Tn1 * min_feb_temp_c + Tn2 * min_feb_temp_c^2 + P1 * jan_precip + P2 * jan_precip^2 + i)
+  
+  
+  
+  # Return max, min, and mean yields
+  return(list(
+    maxyield = max(climate_data_jan_feb$yield, na.rm = TRUE),
+    minyield = min(climate_data_jan_feb$yield, na.rm = TRUE),
+    meanyield = mean(climate_data_jan_feb$yield, na.rm = TRUE)
+  ))
+}
+```
+
+```{r}
+# Results in ton/acre 
+almond_yield(climate_data)
+```
+
+
+Create data frame of average price per lbs of California almonds by year. Data sources from USDA and Merlo Farming Group:
+https://www.nass.usda.gov/Statistics_by_State/California/Publications/Specialty_and_Other_Releases/Almond/Forecast/202405almpd.pdf 
+https://www.merlofarminggroup.com/almonds/Independence
+
+```{r}
+# Create vectors of year and price
+year <- c(1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025)
+
+price <- c(2.48, 2.08, 1.56, 1.41, 0.86, 0.97, 0.91, 1.11, 1.57, 2.21, 2.81, 2.06, 1.75, 1.45, 1.65, 1.79, 1.99, 2.58, 3.21, 4.00, 3.13, 2.39, 2.53, 2.50, 2.45, 1.71, 1.86, 1.40, 1.64, 1.91, 2.60)
+  
+# Join vectors in data frame
+almond_price <- data.frame(year, price)
+
+# Create a column that is price per ton
+almond_price <- almond_price %>%
+  mutate(price_per_ton = price * 2000 )
+```
+
+Create an almond profit model that utilizes outputs from the almond yield model
+```{r}
+#' computes profit from power generation
+#' @param  farm_size (acres)
+#' @param  year (when almonds were harvested)
+#' @return max, min, and mean profit 
+profit_from_almond_yield <- function(farm_size, year) {
+
+  # Configure price from year and farm_size 
+  # price ($/ton)
+  price_by_year <- 
+  
+  
+  # generate a unique identifier or scenario number
+  scen <- seq(from = 1, to = length(energy))
+  yearprofit <- data.frame(scen = scen, energy = energy, year = year)
+  yearprofit$net <- yearprofit$energy * price
+
+  # note how discount is passed through to this function
+  # remember to normalize the year to start year e.g the first year
+  yearprofit <- yearprofit %>%
+    mutate(netpre = compute_NPV(value = net, time = year - year[1], discount = discount))
+
+  return(yearprofit)
+}
+```
+
+
+2.) Apply profit model to the almond model
+
+
+
+3.) Sensitivity analysis of the almond profit model
+
+```{r}
+
+```
+
+
+4.) First graph of almond profit model that shows yield anomaly for each year, accounting for uncertainty in the parameters
+
+```{r}
+
+```
+
+Second graph of almond profit model that shows how yield anomaly in general varies with your parameters
+
+```{r}
+
+```
+
+5. Write a short paragraph (in a Quatro document) to summarize you interpretation of your model results (e.g what do 'take away' from your model and sensitivity analysis)

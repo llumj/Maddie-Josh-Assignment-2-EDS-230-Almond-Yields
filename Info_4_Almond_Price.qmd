@@ -1,0 +1,93 @@
+---
+title: "Info_for_model"
+author: "Maddy Enda"
+format: html
+editor: visual
+---
+### Data used in developing our model:
+
+Prices from: https://www.merlofarminggroup.com/almonds/Independence
+
+2025 almond prices per lbs
+```{r}
+sum_2025 <- (2.77 + 2.70	+ 2.67+ 2.61 +2.48 + 2.35)
+price_2025 <- sum_2025/6
+price_2025
+```
+
+
+2024 almond prices per lbs
+```{r}
+sum_2024 <- (2.13 + 2.15 + 2.05	+ 2.08 + 1.97 + 2.07 + 2.00	+1.75	+1.70	+1.77	+1.73	+1.75	+1.88 + 1.77)
+price_2024 <- sum_2024/14
+price_2024
+```
+
+
+
+Prices from: USDA California Almond data (in \$ per lbs): \[https://www.barchart.com/cmdty/data/fundamental/explore/UDOI10BC.CS\] 
+Year: Price:
+1995  2.48 
+1996  2.08 
+1997  1.56 
+1998  1.41 
+1999  0.86 
+2000  0.97 
+2001  0.91 
+2002  1.11 
+2003  1.57 
+2004  2.21 
+2005  2.81 
+2006  2.06 
+2007  1.75 
+2008  1.45 
+2009  1.65 
+2010  1.79 
+2011  1.99 
+2012  2.58 
+2013  3.21 
+2014  4.00 
+2015  3.13 
+2016  2.39 
+2017  2.53 
+2018  2.50 
+2019  2.45 
+2020  1.71 
+2021  1.86 
+2022  1.40 
+2023  1.64 
+2024  1.91
+2025  2.60
+
+lbs to tons conversion:
+1 ton = 2000 lbs
+
+```{r}
+# Create vectors of year and price
+year <- c(1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025)
+
+ <- c(1.64, 1.4, 1.86, 1.71, 2.45, 2.5, 2.53 )
+
+  
+
+# Join vectors in data frame
+almond_price_7years <- data.frame(year, price)
+
+# Create a column that is price per ton
+almond_price_7years <- almond_price_7years %>%
+  mutate(price_per_ton = price * 2000 )
+```
+
+
+
+
+
+
+```{r}
+
+
+```
+
+
+
+
