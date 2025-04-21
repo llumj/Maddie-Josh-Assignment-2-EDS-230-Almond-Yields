@@ -189,7 +189,6 @@ ggplot(acre_variation_profit_df, aes(x = z_score[,1])) +
 
 5.  Write a short paragraph (in a Quatro document) to summarize you interpretation of your model results (e.g what do 'take away' from your model and sensitivity analysis)
 
-```{r}
-
-```
-
+- Our model utilizes yearly averages of California almond profit from USDA data recorded from 1995 to 2024 (2025 data added from another source), and farm size was recorded from US census data. 
+- Our sensitivity analysis confirms some biases in our data, as well as trends that we were anticipating. Firstly, the graph of z-scores by year shows that mean profit varies wildly with year information, indicating that factors associated with temporal trends play a large in overall almond yield and profit (such as weather events, natural disasters, changes in the state of the US economy, etc.). 
+- With the second z-score distribution of farm size fluctuation, the relationship between farm size and mean profit is fairly linear (as farm size increases profit increases). However, it should be noted that the footprint of the majority of these California farms is rather small. We attempted to randomly generate a series of 31 values centered at 383, in order to decrease the affect of outliers (in reality the largest California Almond farm is over 100,000 acres) but we were still able to show this trend on a smaller scale, as most values fall below the mean, with only one or two high above. 
