@@ -81,7 +81,7 @@ Create an almond profit model that utilizes outputs from the almond yield model
 ```{r}
 #' computes profit from power generation
 #' @param farm_size (acres of farm land)
-#' @param year (year when almonds were harvested)
+#' @param year (year when almonds were harvested, from 1995-2025)
 #' @param meanyield (result from almond_yield function)
 #' @return meanprofit 
 profit_from_almond_yield <- function(farm_size, year) {
@@ -112,15 +112,10 @@ profit_from_almond_yield <- function(farm_size, year) {
 ```
 
 
-2.) Apply profit model to the almond model
+2.) Apply profit model to the almond model 
 
 ```{r}
 profit_from_almond_yield(farm_size= 50, year= 1999)
-```
-
-```{r}
-year_1999 <- almond_price %>%
-    filter(date == 1999)
 ```
 
 
